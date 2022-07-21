@@ -12,6 +12,25 @@ final class InformationTest extends TestCase
 {
     /**
      * @test
+     */
+    public function bytes_always_int(): void
+    {
+        $this->assertSame(5, Information::from(5)->quantity());
+        $this->assertSame(5, Information::from(5.2)->quantity());
+        $this->assertSame(5, Information::from('5.2B')->quantity());
+    }
+
+    /**
+     * @test
+     */
+    public function bits_always_int(): void
+    {
+        $this->assertSame(5, Information::from('5bit')->quantity());
+        $this->assertSame(5, Information::from('5.2bits')->quantity());
+    }
+
+    /**
+     * @test
      * @dataProvider fromValueProvider
      */
     public function can_create_from_value(string|int|Information $value, int $bytes, string $humanized): void

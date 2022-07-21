@@ -23,7 +23,7 @@ final class Information extends Dimension
     private const ALTERNATE_MAP = [
         'k' => 'kB',
         'bit' => 'bit',
-        'bits' => 'bit',
+        'bits' => 'bits',
         // todo add others (kilobyte, kilobytes, etc)
     ];
 
@@ -107,11 +107,14 @@ final class Information extends Dimension
         return parent::createFrom($value);
     }
 
-    protected static function normalizeAndValidateUnits(string $unit): string
+    protected static function normalizeAndValidate(int|float &$quantity, string &$unit): void
     {
         $lower = \mb_strtolower($unit);
+        $unit = self::BINARY_UNITS[$lower] ?? self::DECIMAL_UNITS[$lower] ?? self::ALTERNATE_MAP[$lower] ?? throw new \InvalidArgumentException(\sprintf('"%s" is an invalid informational unit. Valid units: %s.', $unit, \implode(', ', \array_merge(self::DECIMAL_UNITS, self::BINARY_UNITS))));
 
-        return self::BINARY_UNITS[$lower] ?? self::DECIMAL_UNITS[$lower] ?? self::ALTERNATE_MAP[$lower] ?? throw new \InvalidArgumentException(\sprintf('"%s" is an invalid informational unit. Valid units: %s.', $unit, \implode(', ', \array_merge(self::DECIMAL_UNITS, self::BINARY_UNITS))));
+        if (\in_array($unit, ['B', 'bit', 'bits'])) {
+            $quantity = (int) $quantity;
+        }
     }
 
     protected static function converter(): Converter

@@ -16,14 +16,20 @@ class Dimension implements \Stringable, \JsonSerializable
     private static array $formatters = [];
     private static Converter $converter;
 
+    private float|int $quantity;
     private string $unit;
 
     /**
      * @param string $unit The unit of measure the $quantity represents
      */
-    final public function __construct(private float|int $quantity, string $unit)
+    final public function __construct(float|int $quantity, string $unit)
     {
-        $this->unit = static::normalizeAndValidateUnits(\trim($unit));
+        $unit = \trim($unit);
+
+        static::normalizeAndValidate($quantity, $unit);
+
+        $this->quantity = $quantity;
+        $this->unit = $unit;
     }
 
     final public function __toString(): string
@@ -36,7 +42,7 @@ class Dimension implements \Stringable, \JsonSerializable
      */
     final public function __call(string $name, array $arguments): static
     {
-        return $this->convertTo(static::normalizeAndValidateUnits($name));
+        return $this->convertTo($name);
     }
 
     final public static function from(mixed $value): static
@@ -205,9 +211,8 @@ class Dimension implements \Stringable, \JsonSerializable
     /**
      * @throws \InvalidArgumentException If invalid
      */
-    protected static function normalizeAndValidateUnits(string $unit): string
+    protected static function normalizeAndValidate(int|float &$quantity, string &$unit): void
     {
-        return $unit;
     }
 
     private static function formatter(): \NumberFormatter
