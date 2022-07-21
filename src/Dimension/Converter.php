@@ -5,6 +5,7 @@ namespace Zenstruck\Dimension;
 use Zenstruck\Dimension;
 use Zenstruck\Dimension\Exception\ComparisonNotPossible;
 use Zenstruck\Dimension\Exception\ConversionNotPossible;
+use Zenstruck\Dimension\Exception\OperationNotPossible;
 
 /**
  * @author Kevin Bond <kevinbond@gmail.com>
@@ -23,6 +24,28 @@ interface Converter
      * @throws ConversionNotPossible
      */
     public function convertTo(Dimension $from, string $to): Dimension;
+
+    /**
+     * @template T of Dimension
+     *
+     * @param T $first
+     *
+     * @return T
+     *
+     * @throws OperationNotPossible
+     */
+    public function sum(Dimension $first, Dimension $second): Dimension;
+
+    /**
+     * @template T of Dimension
+     *
+     * @param T $first
+     *
+     * @return T
+     *
+     * @throws OperationNotPossible
+     */
+    public function subtract(Dimension $first, Dimension $second): Dimension;
 
     /**
      * @throws ComparisonNotPossible

@@ -7,6 +7,8 @@ use Zenstruck\Dimension\Converter\DurationConverter;
 
 /**
  * @author Kevin Bond <kevinbond@gmail.com>
+ *
+ * @immutable
  */
 final class Duration extends Dimension
 {

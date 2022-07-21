@@ -6,6 +6,7 @@ use Zenstruck\Dimension;
 use Zenstruck\Dimension\Converter;
 use Zenstruck\Dimension\Exception\ComparisonNotPossible;
 use Zenstruck\Dimension\Exception\ConversionNotPossible;
+use Zenstruck\Dimension\Exception\OperationNotPossible;
 
 /**
  * @author Kevin Bond <kevinbond@gmail.com>
@@ -43,6 +44,32 @@ final class ChainConverter implements Converter
         }
 
         throw new ConversionNotPossible(\sprintf('No converter registered to convert "%s" to "%s".', $from->unit(), $to));
+    }
+
+    public function sum(Dimension $first, Dimension $second): Dimension
+    {
+        foreach ($this->converters as $converter) {
+            try {
+                return $converter->sum($first, $second);
+            } catch (OperationNotPossible) {
+                continue;
+            }
+        }
+
+        throw new OperationNotPossible(\sprintf('No converter registered to add "%s" to "%s".', $second, $first));
+    }
+
+    public function subtract(Dimension $first, Dimension $second): Dimension
+    {
+        foreach ($this->converters as $converter) {
+            try {
+                return $converter->subtract($first, $second);
+            } catch (OperationNotPossible) {
+                continue;
+            }
+        }
+
+        throw new OperationNotPossible(\sprintf('No converter registered to subtract "%s" from "%s".', $second, $first));
     }
 
     public function isEqualTo(Dimension $first, Dimension $second): bool

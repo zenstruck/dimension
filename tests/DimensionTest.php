@@ -4,7 +4,9 @@ namespace Zenstruck\Dimension\Tests;
 
 use PHPUnit\Framework\TestCase;
 use Zenstruck\Dimension;
+use Zenstruck\Dimension\Exception\ComparisonNotPossible;
 use Zenstruck\Dimension\Exception\ConversionNotPossible;
+use Zenstruck\Dimension\Exception\OperationNotPossible;
 use Zenstruck\Dimension\Information;
 
 /**
@@ -274,6 +276,16 @@ final class DimensionTest extends TestCase
 
     /**
      * @test
+     */
+    public function invalid_comparison(): void
+    {
+        $this->expectException(ComparisonNotPossible::class);
+
+        Dimension::from('1m')->isEqualTo('10MiB');
+    }
+
+    /**
+     * @test
      * @dataProvider withinRangeProvider
      */
     public function within_range(string $value, string $min, string $max, bool $inclusive, bool $expected): void
@@ -312,5 +324,45 @@ final class DimensionTest extends TestCase
         yield ['1.3GB', '1.1GB', '1.5GiB', true, false];
         yield ['1.3MB', '1.1GB', '1.5GiB', true, true];
         yield ['1.3TB', '1.1GB', '1.5GiB', true, true];
+    }
+
+    /**
+     * @test
+     */
+    public function can_add(): void
+    {
+        $dimension = Dimension::from('1GB');
+
+        $this->assertSame('1.2 GB', $dimension->add('200MB')->toString());
+    }
+
+    /**
+     * @test
+     */
+    public function invalid_add(): void
+    {
+        $this->expectException(OperationNotPossible::class);
+
+        Dimension::from('1gb')->add('10s');
+    }
+
+    /**
+     * @test
+     */
+    public function can_subtract(): void
+    {
+        $dimension = Dimension::from('1GB');
+
+        $this->assertSame('0.8 GB', $dimension->subtract('200MB')->toString());
+    }
+
+    /**
+     * @test
+     */
+    public function invalid_subtract(): void
+    {
+        $this->expectException(OperationNotPossible::class);
+
+        Dimension::from('1gb')->subtract('10s');
     }
 }

@@ -6,9 +6,12 @@ use Zenstruck\Dimension\Converter;
 use Zenstruck\Dimension\Converter\ChainConverter;
 use Zenstruck\Dimension\Exception\ComparisonNotPossible;
 use Zenstruck\Dimension\Exception\ConversionNotPossible;
+use Zenstruck\Dimension\Exception\OperationNotPossible;
 
 /**
  * @author Kevin Bond <kevinbond@gmail.com>
+ *
+ * @immutable
  */
 class Dimension implements \Stringable, \JsonSerializable
 {
@@ -114,6 +117,26 @@ class Dimension implements \Stringable, \JsonSerializable
     final public function jsonSerialize(): array
     {
         return $this->toArray();
+    }
+
+    /**
+     * @param mixed $what {@see from()}
+     *
+     * @throws OperationNotPossible If unable to add
+     */
+    public function add(mixed $what): static
+    {
+        return static::converter()->sum($this, static::from($what));
+    }
+
+    /**
+     * @param mixed $what {@see from()}
+     *
+     * @throws OperationNotPossible If unable to subtract
+     */
+    public function subtract(mixed $what): static
+    {
+        return static::converter()->subtract($this, static::from($what));
     }
 
     /**

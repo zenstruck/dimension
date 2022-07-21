@@ -6,6 +6,7 @@ use Zenstruck\Dimension;
 use Zenstruck\Dimension\Converter;
 use Zenstruck\Dimension\Exception\ComparisonNotPossible;
 use Zenstruck\Dimension\Exception\ConversionNotPossible;
+use Zenstruck\Dimension\Exception\OperationNotPossible;
 
 /**
  * @author Kevin Bond <kevinbond@gmail.com>
@@ -134,6 +135,42 @@ abstract class UnitConverter implements Converter
         $class = $from::class;
 
         return new $class($newQuantity, $to);
+    }
+
+    final public function sum(Dimension $first, Dimension $second): Dimension
+    {
+        try {
+            $firstUnit = self::get($first->unit());
+            $secondUnit = self::get($second->unit());
+
+            $firstQty = $firstUnit->convertToNative($first->quantity());
+            $secondQty = $secondUnit->convertToNative($second->quantity());
+        } catch (ConversionNotPossible $e) {
+            throw new OperationNotPossible(\sprintf('Not possible to add "%s" to "%s".', $second, $first), previous: $e);
+        }
+
+        $newQuantity = $firstUnit->convertFromNative($firstQty + $secondQty);
+        $class = $first::class;
+
+        return new $class($newQuantity, $first->unit());
+    }
+
+    final public function subtract(Dimension $first, Dimension $second): Dimension
+    {
+        try {
+            $firstUnit = self::get($first->unit());
+            $secondUnit = self::get($second->unit());
+
+            $firstQty = $firstUnit->convertToNative($first->quantity());
+            $secondQty = $secondUnit->convertToNative($second->quantity());
+        } catch (ConversionNotPossible $e) {
+            throw new OperationNotPossible(\sprintf('Not possible to subtract "%s" from "%s".', $second, $first), previous: $e);
+        }
+
+        $newQuantity = $firstUnit->convertFromNative($firstQty - $secondQty);
+        $class = $first::class;
+
+        return new $class($newQuantity, $first->unit());
     }
 
     final public function isEqualTo(Dimension $first, Dimension $second): bool
