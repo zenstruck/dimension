@@ -164,6 +164,8 @@ final class DimensionTest extends TestCase
         yield ['6"', "'", "0.5 '"];
         yield ['1m', 's', '60 s'];
         yield ['60s', 'm', '1 m'];
+        yield ['1B', 'bits', '8 bits'];
+        yield ['24B', 'bits', '192 bits'];
     }
 
     /**

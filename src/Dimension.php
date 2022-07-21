@@ -9,20 +9,23 @@ use Zenstruck\Dimension\Exception\ConversionNotPossible;
 /**
  * @author Kevin Bond <kevinbond@gmail.com>
  */
-final class Dimension implements \Stringable, \JsonSerializable
+class Dimension implements \Stringable, \JsonSerializable
 {
     /** @var array<string,\NumberFormatter> */
     private static array $formatters = [];
     private static Converter $converter;
 
+    private string $unit;
+
     /**
      * @param string $unit The unit of measure the $quantity represents
      */
-    public function __construct(private float|int $quantity, private string $unit)
+    final public function __construct(private float|int $quantity, string $unit)
     {
+        $this->unit = static::normalizeAndValidateUnits($unit);
     }
 
-    public function __toString(): string
+    final public function __toString(): string
     {
         return $this->toString();
     }
@@ -30,14 +33,14 @@ final class Dimension implements \Stringable, \JsonSerializable
     /**
      * @param string|array{0:int|float,1:string}|self $value
      */
-    public static function from(string|array|self $value): self
+    public static function from(string|array|self $value): static
     {
-        if ($value instanceof self) {
+        if ($value instanceof static) {
             return $value;
         }
 
         if (\is_array($value) && 2 === \count($value = \array_values($value))) {
-            return new self($value[0], $value[1]); // todo error checking
+            return new static($value[0], $value[1]); // todo error checking
         }
 
         if (!\is_string($value)) {
@@ -45,12 +48,12 @@ final class Dimension implements \Stringable, \JsonSerializable
         }
 
         if (\preg_match('#^(-?[\d,]+(.[\d,]+)?)([\s\-_]+)?(.+)$#', \trim($value), $matches)) {
-            return new self(\str_replace(',', '', $matches[1]), $matches[4]); // @phpstan-ignore-line
+            return new static(\str_replace(',', '', $matches[1]), $matches[4]); // @phpstan-ignore-line
         }
 
         try {
             if (\is_array($decoded = \json_decode($value, true, 2, \JSON_THROW_ON_ERROR))) {
-                return self::from($decoded); // @phpstan-ignore-line
+                return static::from($decoded); // @phpstan-ignore-line
             }
         } catch (\JsonException) {
         }
@@ -58,17 +61,17 @@ final class Dimension implements \Stringable, \JsonSerializable
         throw new \InvalidArgumentException(\sprintf('"%s" is an invalid dimensional value.', $value));
     }
 
-    public function quantity(): float|int
+    final public function quantity(): float|int
     {
         return $this->quantity;
     }
 
-    public function unit(): string
+    final public function unit(): string
     {
         return $this->unit;
     }
 
-    public function toString(): string
+    final public function toString(): string
     {
         if (!\class_exists(\NumberFormatter::class)) {
             return \sprintf('%.2f %s', $this->quantity(), $this->unit());
@@ -80,19 +83,19 @@ final class Dimension implements \Stringable, \JsonSerializable
     /**
      * @throws ConversionNotPossible If unable to convert to $unit
      */
-    public function convertTo(string $unit): self
+    final public function convertTo(string $unit): static
     {
         if ($unit === $this->unit) {
             return $this;
         }
 
-        return self::converter()->convertTo($this, $unit);
+        return static::converter()->convertTo($this, $unit);
     }
 
     /**
      * @return array{0:int|float,1:string}
      */
-    public function toArray(): array
+    final public function toArray(): array
     {
         return [$this->quantity(), $this->unit()];
     }
@@ -100,9 +103,22 @@ final class Dimension implements \Stringable, \JsonSerializable
     /**
      * @return array{0:int|float,1:string}
      */
-    public function jsonSerialize(): array
+    final public function jsonSerialize(): array
     {
         return $this->toArray();
+    }
+
+    protected static function converter(): Converter
+    {
+        return self::$converter ??= ChainConverter::default();
+    }
+
+    /**
+     * @throws \InvalidArgumentException If invalid
+     */
+    protected static function normalizeAndValidateUnits(string $unit): string
+    {
+        return $unit;
     }
 
     private static function formatter(): \NumberFormatter
@@ -116,10 +132,5 @@ final class Dimension implements \Stringable, \JsonSerializable
         self::$formatters[$locale]->setAttribute(\NumberFormatter::ROUNDING_MODE, \NumberFormatter::ROUND_HALFUP);
 
         return self::$formatters[$locale];
-    }
-
-    private static function converter(): Converter
-    {
-        return self::$converter ??= ChainConverter::default();
     }
 }
