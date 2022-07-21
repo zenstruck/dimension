@@ -94,6 +94,16 @@ final class DimensionTest extends TestCase
     /**
      * @test
      */
+    public function create_from_dimensionless_string(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+
+        Dimension::from('60');
+    }
+
+    /**
+     * @test
+     */
     public function can_convert_to_string(): void
     {
         $this->assertSame('45 mm', (string) new Dimension(45, 'mm'));
@@ -196,5 +206,90 @@ final class DimensionTest extends TestCase
         $this->expectException(ConversionNotPossible::class);
 
         Dimension::from('22s')->convertTo('meter');
+    }
+
+    /**
+     * @test
+     * @dataProvider comparisonProvider
+     */
+    public function comparison_test(string $first, string $method, string $second, bool $expected): void
+    {
+        $this->assertSame($expected, Dimension::from($first)->{$method}($second));
+    }
+
+    public static function comparisonProvider(): iterable
+    {
+        yield ['10m', 'isLargerThan', '5m', true];
+        yield ['10m', 'isLargerThan', '15m', false];
+        yield ['10m', 'isLargerThan', '10m', false];
+        yield ['1.2 TB', 'isLargerThan', '1.1TB', true];
+        yield ['1.2 TB', 'isLargerThan', '1.3TB', false];
+
+        yield ['10m', 'isLargerThanOrEqualTo', '5m', true];
+        yield ['10m', 'isLargerThanOrEqualTo', '15m', false];
+        yield ['10m', 'isLargerThanOrEqualTo', '10m', true];
+        yield ['1.2 TB', 'isLargerThanOrEqualTo', '1.1TB', true];
+        yield ['1.2 TB', 'isLargerThanOrEqualTo', '1.3TB', false];
+
+        yield ['10m', 'isSmallerThan', '5m', false];
+        yield ['10m', 'isSmallerThan', '15m', true];
+        yield ['10m', 'isSmallerThan', '10m', false];
+        yield ['1.2 TB', 'isSmallerThan', '1.3TB', true];
+        yield ['1.2 TB', 'isSmallerThan', '1.1TB', false];
+
+        yield ['10m', 'isSmallerThanOrEqualTo', '5m', false];
+        yield ['10m', 'isSmallerThanOrEqualTo', '15m', true];
+        yield ['10m', 'isSmallerThanOrEqualTo', '10m', true];
+        yield ['1.2 TB', 'isSmallerThanOrEqualTo', '1.3TB', true];
+        yield ['1.2 TB', 'isSmallerThanOrEqualTo', '1.1TB', false];
+
+        yield ['10m', 'isEqualTo', '5m', false];
+        yield ['10m', 'isEqualTo', '15m', false];
+        yield ['10m', 'isEqualTo', '10m', true];
+        yield ['1.2 TB', 'isEqualTo', '1.3TB', false];
+        yield ['1.2 TB', 'isEqualTo', '1.1TB', false];
+        yield ['1.2 TB', 'isEqualTo', '1.2 TB', true];
+    }
+
+    /**
+     * @test
+     * @dataProvider withinRangeProvider
+     */
+    public function within_range(string $value, string $min, string $max, bool $inclusive, bool $expected): void
+    {
+        $this->assertSame($expected, Dimension::from($value)->isWithin($min, $max, $inclusive));
+    }
+
+    public static function withinRangeProvider(): iterable
+    {
+        yield ['56m', '40m', '60m', true, true];
+        yield ['40m', '40m', '40m', true, true];
+        yield ['40m', '40m', '40m', false, false];
+        yield ['39m', '40m', '60m', true, false];
+        yield ['80m', '40m', '60m', true, false];
+        yield ['1.3GB', '1.1GB', '1.5GiB', true, true];
+        yield ['1.3MB', '1.1GB', '1.5GiB', true, false];
+        yield ['1.3TB', '1.1GB', '1.5GiB', true, false];
+    }
+
+    /**
+     * @test
+     * @dataProvider outsideRangeProvider
+     */
+    public function outside_range(string $value, string $min, string $max, bool $inclusive, bool $expected): void
+    {
+        $this->assertSame($expected, Dimension::from($value)->isOutside($min, $max, $inclusive));
+    }
+
+    public static function outsideRangeProvider(): iterable
+    {
+        yield ['56m', '40m', '60m', true, false];
+        yield ['40m', '40m', '40m', true, true];
+        yield ['40m', '40m', '40m', false, false];
+        yield ['39m', '40m', '60m', true, true];
+        yield ['80m', '40m', '60m', true, true];
+        yield ['1.3GB', '1.1GB', '1.5GiB', true, false];
+        yield ['1.3MB', '1.1GB', '1.5GiB', true, true];
+        yield ['1.3TB', '1.1GB', '1.5GiB', true, true];
     }
 }

@@ -4,6 +4,7 @@ namespace Zenstruck;
 
 use Zenstruck\Dimension\Converter;
 use Zenstruck\Dimension\Converter\ChainConverter;
+use Zenstruck\Dimension\Exception\ComparisonNotPossible;
 use Zenstruck\Dimension\Exception\ConversionNotPossible;
 
 /**
@@ -114,6 +115,88 @@ class Dimension implements \Stringable, \JsonSerializable
     final public function jsonSerialize(): array
     {
         return $this->toArray();
+    }
+
+    /**
+     * @param string|array{0:int|float,1:string}|self $other {@see from()}
+     *
+     * @throws ComparisonNotPossible If unable to compare with $other
+     */
+    public function isEqualTo(string|array|self $other): bool
+    {
+        return static::converter()->isEqualTo($this, static::from($other));
+    }
+
+    /**
+     * @param string|array{0:int|float,1:string}|self $other {@see from()}
+     *
+     * @throws ComparisonNotPossible If unable to compare with $other
+     */
+    public function isLargerThan(string|array|self $other): bool
+    {
+        return static::converter()->isLargerThan($this, static::from($other));
+    }
+
+    /**
+     * @param string|array{0:int|float,1:string}|self $other {@see from()}
+     *
+     * @throws ComparisonNotPossible If unable to compare with $other
+     */
+    public function isLargerThanOrEqualTo(string|array|self $other): bool
+    {
+        return static::converter()->isLargerThanOrEqualTo($this, static::from($other));
+    }
+
+    /**
+     * @param string|array{0:int|float,1:string}|self $other {@see from()}
+     *
+     * @throws ComparisonNotPossible If unable to compare with $other
+     */
+    public function isSmallerThan(string|array|self $other): bool
+    {
+        return static::converter()->isSmallerThan($this, static::from($other));
+    }
+
+    /**
+     * @param string|array{0:int|float,1:string}|self $other {@see from()}
+     *
+     * @throws ComparisonNotPossible If unable to compare with $other
+     */
+    public function isSmallerThanOrEqualTo(string|array|self $other): bool
+    {
+        return static::converter()->isSmallerThanOrEqualTo($this, static::from($other));
+    }
+
+    /**
+     * @param string|array{0:int|float,1:string}|self $min       {@see from()}
+     * @param string|array{0:int|float,1:string}|self $max       {@see from()}
+     * @param bool                                    $inclusive Whether to match the $min/$max exactly
+     *
+     * @throws ComparisonNotPossible If unable to compare with $min/$max
+     */
+    public function isWithin(string|array|self $min, string|array|self $max, bool $inclusive = true): bool
+    {
+        if ($inclusive) {
+            return $this->isLargerThanOrEqualTo($min) && $this->isSmallerThanOrEqualTo($max);
+        }
+
+        return $this->isLargerThan($min) && $this->isSmallerThan($max);
+    }
+
+    /**
+     * @param string|array{0:int|float,1:string}|self $min       {@see from()}
+     * @param string|array{0:int|float,1:string}|self $max       {@see from()}
+     * @param bool                                    $inclusive Whether to match the $min/$max exactly
+     *
+     * @throws ComparisonNotPossible If unable to compare with $min/$max
+     */
+    public function isOutside(string|array|self $min, string|array|self $max, bool $inclusive = false): bool
+    {
+        if ($inclusive) {
+            return $this->isSmallerThanOrEqualTo($min) || $this->isLargerThanOrEqualTo($max);
+        }
+
+        return $this->isSmallerThan($min) || $this->isLargerThan($max);
     }
 
     protected static function converter(): Converter

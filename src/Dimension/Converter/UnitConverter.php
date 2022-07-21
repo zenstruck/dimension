@@ -4,6 +4,7 @@ namespace Zenstruck\Dimension\Converter;
 
 use Zenstruck\Dimension;
 use Zenstruck\Dimension\Converter;
+use Zenstruck\Dimension\Exception\ComparisonNotPossible;
 use Zenstruck\Dimension\Exception\ConversionNotPossible;
 
 /**
@@ -135,6 +136,31 @@ abstract class UnitConverter implements Converter
         return new $class($newQuantity, $to);
     }
 
+    final public function isEqualTo(Dimension $first, Dimension $second): bool
+    {
+        return $this->compare($first, $second, '=');
+    }
+
+    public function isLargerThan(Dimension $first, Dimension $second): bool
+    {
+        return $this->compare($first, $second, '>');
+    }
+
+    public function isLargerThanOrEqualTo(Dimension $first, Dimension $second): bool
+    {
+        return $this->compare($first, $second, '>=');
+    }
+
+    public function isSmallerThan(Dimension $first, Dimension $second): bool
+    {
+        return $this->compare($first, $second, '<');
+    }
+
+    public function isSmallerThanOrEqualTo(Dimension $first, Dimension $second): bool
+    {
+        return $this->compare($first, $second, '<=');
+    }
+
     /**
      * @param string[] $aliases
      */
@@ -163,6 +189,25 @@ abstract class UnitConverter implements Converter
     }
 
     abstract protected static function build(): void;
+
+    private function compare(Dimension $first, Dimension $second, string $operator): bool
+    {
+        try {
+            $firstQty = self::get($first->unit())->convertToNative($first->quantity());
+            $secondQty = self::get($second->unit())->convertToNative($second->quantity());
+        } catch (ConversionNotPossible $e) {
+            throw new ComparisonNotPossible(\sprintf('Not possible to compare "%s" with "%s".', $first, $second), previous: $e);
+        }
+
+        return match ($operator) {
+            '>' => $firstQty > $secondQty,
+            '>=' => $firstQty >= $secondQty,
+            '<' => $firstQty < $secondQty,
+            '<=' => $firstQty <= $secondQty,
+            '=' => $firstQty === $secondQty,
+            default => throw new \LogicException('Invalid operator.'),
+        };
+    }
 
     /**
      * @return Unit[]

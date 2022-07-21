@@ -115,6 +115,73 @@ final class Information extends Dimension
         return new self($quantity, $units[$i]);
     }
 
+    /**
+     * @param numeric                                 $other Bytes
+     * @param string|array{0:int|float,1:string}|self $other
+     */
+    public function isEqualTo(Dimension|array|string|int $other): bool
+    {
+        return parent::isEqualTo(self::from($other));
+    }
+
+    /**
+     * @param numeric                                 $other Bytes
+     * @param string|array{0:int|float,1:string}|self $other
+     */
+    public function isLargerThan(Dimension|array|string|int $other): bool
+    {
+        return parent::isLargerThan(self::from($other));
+    }
+
+    /**
+     * @param numeric                                 $other Bytes
+     * @param string|array{0:int|float,1:string}|self $other
+     */
+    public function isLargerThanOrEqualTo(Dimension|array|string|int $other): bool
+    {
+        return parent::isLargerThanOrEqualTo(self::from($other));
+    }
+
+    /**
+     * @param numeric                                 $other Bytes
+     * @param string|array{0:int|float,1:string}|self $other
+     */
+    public function isSmallerThan(Dimension|array|string|int $other): bool
+    {
+        return parent::isSmallerThan(self::from($other));
+    }
+
+    /**
+     * @param numeric                                 $other Bytes
+     * @param string|array{0:int|float,1:string}|self $other
+     */
+    public function isSmallerThanOrEqualTo(Dimension|array|string|int $other): bool
+    {
+        return parent::isSmallerThanOrEqualTo(self::from($other));
+    }
+
+    /**
+     * @param numeric                                 $min Bytes
+     * @param string|array{0:int|float,1:string}|self $min
+     * @param numeric                                 $max Bytes
+     * @param string|array{0:int|float,1:string}|self $max
+     */
+    public function isWithin(Dimension|array|string|int $min, Dimension|array|string|int $max, bool $inclusive = true): bool
+    {
+        return parent::isWithin(self::from($min), self::from($max), $inclusive);
+    }
+
+    /**
+     * @param numeric                                 $min Bytes
+     * @param string|array{0:int|float,1:string}|self $min
+     * @param numeric                                 $max Bytes
+     * @param string|array{0:int|float,1:string}|self $max
+     */
+    public function isOutside(Dimension|array|string|int $min, Dimension|array|string|int $max, bool $inclusive = false): bool
+    {
+        return parent::isOutside(self::from($min), self::from($max), $inclusive);
+    }
+
     protected static function normalizeAndValidateUnits(string $unit): string
     {
         $lower = \mb_strtolower($unit);

@@ -3,6 +3,7 @@
 namespace Zenstruck\Dimension;
 
 use Zenstruck\Dimension;
+use Zenstruck\Dimension\Exception\ComparisonNotPossible;
 use Zenstruck\Dimension\Exception\ConversionNotPossible;
 
 /**
@@ -22,4 +23,29 @@ interface Converter
      * @throws ConversionNotPossible
      */
     public function convertTo(Dimension $from, string $to): Dimension;
+
+    /**
+     * @throws ComparisonNotPossible
+     */
+    public function isEqualTo(Dimension $first, Dimension $second): bool;
+
+    /**
+     * @throws ComparisonNotPossible
+     */
+    public function isLargerThan(Dimension $first, Dimension $second): bool;
+
+    /**
+     * @throws ComparisonNotPossible
+     */
+    public function isLargerThanOrEqualTo(Dimension $first, Dimension $second): bool;
+
+    /**
+     * @throws ComparisonNotPossible
+     */
+    public function isSmallerThan(Dimension $first, Dimension $second): bool;
+
+    /**
+     * @throws ComparisonNotPossible
+     */
+    public function isSmallerThanOrEqualTo(Dimension $first, Dimension $second): bool;
 }
