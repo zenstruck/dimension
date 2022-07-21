@@ -26,6 +26,7 @@ final class InformationTest extends TestCase
     public static function fromValueProvider(): iterable
     {
         yield [400, 400, '400 B'];
+        yield [400000, 400000, '400 kB'];
         yield [Information::from(400), 400, '400 B'];
         yield ['400', 400, '400 B'];
         yield ['400B', 400, '400 B'];
@@ -110,5 +111,17 @@ final class InformationTest extends TestCase
         $this->expectException(\InvalidArgumentException::class);
 
         Information::from('6.6 foo');
+    }
+
+    /**
+     * @test
+     */
+    public function magic_methods(): void
+    {
+        $information = Information::from(4_256_001);
+
+        $this->assertSame('4,256 kB', $information->kb()->toString());
+        $this->assertSame('4.26 MB', $information->mb()->toString());
+        $this->assertSame('0 GB', $information->gb()->toString());
     }
 }

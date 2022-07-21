@@ -31,6 +31,14 @@ class Dimension implements \Stringable, \JsonSerializable
     }
 
     /**
+     * @param mixed[] $arguments
+     */
+    final public function __call(string $name, array $arguments): static
+    {
+        return $this->convertTo(static::normalizeAndValidateUnits($name));
+    }
+
+    /**
      * @param string|array{0:int|float,1:string}|self $value
      */
     public static function from(string|array|self $value): static

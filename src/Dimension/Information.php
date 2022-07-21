@@ -8,6 +8,10 @@ use Zenstruck\Dimension\Converter\InformationConverter;
 /**
  * @author Kevin Bond <kevinbond@gmail.com>
  *
+ * @method self kb() Convert to kB
+ * @method self mb() Convert to MB
+ * @method self gb() Convert to GB
+ *
  * @immutable
  */
 final class Information extends Dimension
