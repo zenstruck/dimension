@@ -1,0 +1,10 @@
+--TEST--
+"duration" filter
+--TEMPLATE--
+{{ '9 d'|duration.humanize }}
+{{ 0|duration.humanize }}
+--DATA--
+return []
+--EXPECT--
+9 days
+&lt; 1 sec

@@ -1,0 +1,8 @@
+--TEST--
+"dimension" filter
+--TEMPLATE--
+{{ '32mm'|dimension }}
+--DATA--
+return []
+--EXPECT--
+32 mm

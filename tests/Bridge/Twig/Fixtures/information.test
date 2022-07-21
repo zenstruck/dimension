@@ -1,0 +1,8 @@
+--TEST--
+"information" filter
+--TEMPLATE--
+{{ 4200000|information.humanize }}
+--DATA--
+return []
+--EXPECT--
+4.2 MB
