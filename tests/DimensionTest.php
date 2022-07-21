@@ -5,6 +5,7 @@ namespace Zenstruck\Dimension\Tests;
 use PHPUnit\Framework\TestCase;
 use Zenstruck\Dimension;
 use Zenstruck\Dimension\Exception\ConversionNotPossible;
+use Zenstruck\Dimension\Information;
 
 /**
  * @author Kevin Bond <kevinbond@gmail.com>
@@ -59,6 +60,26 @@ final class DimensionTest extends TestCase
         yield [['quantity' => 45, 'unit' => 'mm'], 45, 'mm'];
         yield [[45.0, 'mm'], 45.0, 'mm'];
         yield [['45.0', 'mm'], 45.0, 'mm'];
+    }
+
+    /**
+     * @test
+     */
+    public function create_from_self(): void
+    {
+        $dimension = Dimension::from('10k');
+
+        $this->assertSame($dimension, Dimension::from($dimension));
+        $this->assertSame(Dimension::class, Dimension::from($dimension)::class);
+        $this->assertNotSame($dimension, Information::from($dimension));
+        $this->assertSame(Information::class, Information::from($dimension)::class);
+
+        $information = Information::from('10k');
+
+        $this->assertNotSame($information, Dimension::from($information));
+        $this->assertSame(Dimension::class, Dimension::from($information)::class);
+        $this->assertSame($information, Information::from($information));
+        $this->assertSame(Information::class, Information::from($information)::class);
     }
 
     /**

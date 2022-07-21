@@ -42,11 +42,11 @@ class Dimension implements \Stringable, \JsonSerializable
     final public static function from(mixed $value): static
     {
         if ($value instanceof self) {
-            return self::class === $value::class ? $value : new static($value->quantity, $value->unit);
+            return static::class === $value::class ? $value : new static($value->quantity, $value->unit); // @phpstan-ignore-line
         }
 
         if (\is_array($value) && 2 === \count($value = \array_values($value))) {
-            return new static($value[0], $value[1]); // todo error checking
+            return new static($value[0], $value[1]); // todo type error checking
         }
 
         if (\is_string($value) && !\is_numeric($value) && \preg_match('#^(-?[\d,]+(.[\d,]+)?)([\s\-_]+)?(.+)$#', \trim($value), $matches)) {
@@ -55,7 +55,7 @@ class Dimension implements \Stringable, \JsonSerializable
 
         try {
             if (\is_string($value) && \is_array($decoded = \json_decode($value, true, 2, \JSON_THROW_ON_ERROR))) {
-                return static::from($decoded); // @phpstan-ignore-line
+                return static::from($decoded);
             }
         } catch (\JsonException) {
         }

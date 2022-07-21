@@ -101,7 +101,7 @@ final class Information extends Dimension
     protected static function createFrom(mixed $value): static
     {
         if (\is_numeric($value)) {
-            return new self($value, 'B'); // default to bytes
+            return new self((int) $value, 'B'); // default to bytes
         }
 
         return parent::createFrom($value);
