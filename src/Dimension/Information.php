@@ -32,28 +32,11 @@ final class Information extends Dimension
     private int $factor;
 
     /**
-     * Create from bytes (ie 546548) or a human-readable format (ie "1.1kB", "3.42 MiB").
-     * Auto determines system from suffix (ie kB = decimal, MiB = binary) if possible,
-     * otherwise, defaults to decimal.
-     *
-     * @param numeric                                 $value Bytes
-     * @param string|array{0:int|float,1:string}|self $value
-     */
-    public static function from(Dimension|array|string|int $value): static
-    {
-        if (\is_numeric($value)) {
-            return new self((int) $value, 'B');
-        }
-
-        return parent::from($value);
-    }
-
-    /**
      * Create in the binary system (ie MiB).
      *
-     * @param Dimension|array{0:int|float,1:string}|string|int $value {@see from()}
+     * @param mixed $value {@see from()}
      */
-    public static function binary(Dimension|array|string|int $value): self
+    public static function binary(mixed $value): self
     {
         return self::from($value)->asBinary();
     }
@@ -61,9 +44,9 @@ final class Information extends Dimension
     /**
      * Create in the decimal system (ie MB).
      *
-     * @param Dimension|array{0:int|float,1:string}|string|int $value {@see from()}
+     * @param mixed $value {@see from()}
      */
-    public static function decimal(Dimension|array|string|int $value): self
+    public static function decimal(mixed $value): self
     {
         return self::from($value)->asDecimal();
     }
@@ -115,71 +98,13 @@ final class Information extends Dimension
         return new self($quantity, $units[$i]);
     }
 
-    /**
-     * @param numeric                                 $other Bytes
-     * @param string|array{0:int|float,1:string}|self $other
-     */
-    public function isEqualTo(Dimension|array|string|int $other): bool
+    protected static function createFrom(mixed $value): static
     {
-        return parent::isEqualTo(self::from($other));
-    }
+        if (\is_numeric($value)) {
+            return new self($value, 'B'); // default to bytes
+        }
 
-    /**
-     * @param numeric                                 $other Bytes
-     * @param string|array{0:int|float,1:string}|self $other
-     */
-    public function isLargerThan(Dimension|array|string|int $other): bool
-    {
-        return parent::isLargerThan(self::from($other));
-    }
-
-    /**
-     * @param numeric                                 $other Bytes
-     * @param string|array{0:int|float,1:string}|self $other
-     */
-    public function isLargerThanOrEqualTo(Dimension|array|string|int $other): bool
-    {
-        return parent::isLargerThanOrEqualTo(self::from($other));
-    }
-
-    /**
-     * @param numeric                                 $other Bytes
-     * @param string|array{0:int|float,1:string}|self $other
-     */
-    public function isSmallerThan(Dimension|array|string|int $other): bool
-    {
-        return parent::isSmallerThan(self::from($other));
-    }
-
-    /**
-     * @param numeric                                 $other Bytes
-     * @param string|array{0:int|float,1:string}|self $other
-     */
-    public function isSmallerThanOrEqualTo(Dimension|array|string|int $other): bool
-    {
-        return parent::isSmallerThanOrEqualTo(self::from($other));
-    }
-
-    /**
-     * @param numeric                                 $min Bytes
-     * @param string|array{0:int|float,1:string}|self $min
-     * @param numeric                                 $max Bytes
-     * @param string|array{0:int|float,1:string}|self $max
-     */
-    public function isWithin(Dimension|array|string|int $min, Dimension|array|string|int $max, bool $inclusive = true): bool
-    {
-        return parent::isWithin(self::from($min), self::from($max), $inclusive);
-    }
-
-    /**
-     * @param numeric                                 $min Bytes
-     * @param string|array{0:int|float,1:string}|self $min
-     * @param numeric                                 $max Bytes
-     * @param string|array{0:int|float,1:string}|self $max
-     */
-    public function isOutside(Dimension|array|string|int $min, Dimension|array|string|int $max, bool $inclusive = false): bool
-    {
-        return parent::isOutside(self::from($min), self::from($max), $inclusive);
+        return parent::createFrom($value);
     }
 
     protected static function normalizeAndValidateUnits(string $unit): string

@@ -23,7 +23,7 @@ class Dimension implements \Stringable, \JsonSerializable
      */
     final public function __construct(private float|int $quantity, string $unit)
     {
-        $this->unit = static::normalizeAndValidateUnits($unit);
+        $this->unit = static::normalizeAndValidateUnits(\trim($unit));
     }
 
     final public function __toString(): string
@@ -39,35 +39,28 @@ class Dimension implements \Stringable, \JsonSerializable
         return $this->convertTo(static::normalizeAndValidateUnits($name));
     }
 
-    /**
-     * @param string|array{0:int|float,1:string}|self $value
-     */
-    public static function from(string|array|self $value): static
+    final public static function from(mixed $value): static
     {
-        if ($value instanceof static) {
-            return $value;
+        if ($value instanceof self) {
+            return self::class === $value::class ? $value : new static($value->quantity, $value->unit);
         }
 
         if (\is_array($value) && 2 === \count($value = \array_values($value))) {
             return new static($value[0], $value[1]); // todo error checking
         }
 
-        if (!\is_string($value)) {
-            throw new \InvalidArgumentException('Invalid dimensional array.');
-        }
-
-        if (\preg_match('#^(-?[\d,]+(.[\d,]+)?)([\s\-_]+)?(.+)$#', \trim($value), $matches)) {
+        if (\is_string($value) && !\is_numeric($value) && \preg_match('#^(-?[\d,]+(.[\d,]+)?)([\s\-_]+)?(.+)$#', \trim($value), $matches)) {
             return new static(\str_replace(',', '', $matches[1]), $matches[4]); // @phpstan-ignore-line
         }
 
         try {
-            if (\is_array($decoded = \json_decode($value, true, 2, \JSON_THROW_ON_ERROR))) {
+            if (\is_string($value) && \is_array($decoded = \json_decode($value, true, 2, \JSON_THROW_ON_ERROR))) {
                 return static::from($decoded); // @phpstan-ignore-line
             }
         } catch (\JsonException) {
         }
 
-        throw new \InvalidArgumentException(\sprintf('"%s" is an invalid dimensional value.', $value));
+        return static::createFrom($value);
     }
 
     final public function quantity(): float|int
@@ -118,63 +111,63 @@ class Dimension implements \Stringable, \JsonSerializable
     }
 
     /**
-     * @param string|array{0:int|float,1:string}|self $other {@see from()}
+     * @param mixed $other {@see from()}
      *
      * @throws ComparisonNotPossible If unable to compare with $other
      */
-    public function isEqualTo(string|array|self $other): bool
+    final public function isEqualTo(mixed $other): bool
     {
         return static::converter()->isEqualTo($this, static::from($other));
     }
 
     /**
-     * @param string|array{0:int|float,1:string}|self $other {@see from()}
+     * @param mixed $other {@see from()}
      *
      * @throws ComparisonNotPossible If unable to compare with $other
      */
-    public function isLargerThan(string|array|self $other): bool
+    final public function isLargerThan(mixed $other): bool
     {
         return static::converter()->isLargerThan($this, static::from($other));
     }
 
     /**
-     * @param string|array{0:int|float,1:string}|self $other {@see from()}
+     * @param mixed $other {@see from()}
      *
      * @throws ComparisonNotPossible If unable to compare with $other
      */
-    public function isLargerThanOrEqualTo(string|array|self $other): bool
+    final public function isLargerThanOrEqualTo(mixed $other): bool
     {
         return static::converter()->isLargerThanOrEqualTo($this, static::from($other));
     }
 
     /**
-     * @param string|array{0:int|float,1:string}|self $other {@see from()}
+     * @param mixed $other {@see from()}
      *
      * @throws ComparisonNotPossible If unable to compare with $other
      */
-    public function isSmallerThan(string|array|self $other): bool
+    final public function isSmallerThan(mixed $other): bool
     {
         return static::converter()->isSmallerThan($this, static::from($other));
     }
 
     /**
-     * @param string|array{0:int|float,1:string}|self $other {@see from()}
+     * @param mixed $other {@see from()}
      *
      * @throws ComparisonNotPossible If unable to compare with $other
      */
-    public function isSmallerThanOrEqualTo(string|array|self $other): bool
+    final public function isSmallerThanOrEqualTo(mixed $other): bool
     {
         return static::converter()->isSmallerThanOrEqualTo($this, static::from($other));
     }
 
     /**
-     * @param string|array{0:int|float,1:string}|self $min       {@see from()}
-     * @param string|array{0:int|float,1:string}|self $max       {@see from()}
-     * @param bool                                    $inclusive Whether to match the $min/$max exactly
+     * @param mixed $min       {@see from()}
+     * @param mixed $max       {@see from()}
+     * @param bool  $inclusive Whether to match the $min/$max exactly
      *
      * @throws ComparisonNotPossible If unable to compare with $min/$max
      */
-    public function isWithin(string|array|self $min, string|array|self $max, bool $inclusive = true): bool
+    final public function isWithin(mixed $min, mixed $max, bool $inclusive = true): bool
     {
         if ($inclusive) {
             return $this->isLargerThanOrEqualTo($min) && $this->isSmallerThanOrEqualTo($max);
@@ -184,19 +177,24 @@ class Dimension implements \Stringable, \JsonSerializable
     }
 
     /**
-     * @param string|array{0:int|float,1:string}|self $min       {@see from()}
-     * @param string|array{0:int|float,1:string}|self $max       {@see from()}
-     * @param bool                                    $inclusive Whether to match the $min/$max exactly
+     * @param mixed $min       {@see from()}
+     * @param mixed $max       {@see from()}
+     * @param bool  $inclusive Whether to match the $min/$max exactly
      *
      * @throws ComparisonNotPossible If unable to compare with $min/$max
      */
-    public function isOutside(string|array|self $min, string|array|self $max, bool $inclusive = false): bool
+    final public function isOutside(mixed $min, mixed $max, bool $inclusive = false): bool
     {
         if ($inclusive) {
             return $this->isSmallerThanOrEqualTo($min) || $this->isLargerThanOrEqualTo($max);
         }
 
         return $this->isSmallerThan($min) || $this->isLargerThan($max);
+    }
+
+    protected static function createFrom(mixed $value): static
+    {
+        throw new \InvalidArgumentException(\sprintf('"%s" is an invalid dimensional value.', \is_scalar($value) ? $value : \get_debug_type($value)));
     }
 
     protected static function converter(): Converter
