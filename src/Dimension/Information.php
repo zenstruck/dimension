@@ -83,7 +83,7 @@ final class Information extends Dimension
         return $this->bytes() * 8;
     }
 
-    public function humanize(): string
+    public function humanize(): self
     {
         $this->factor ??= \in_array($this->unit(), self::DECIMAL_UNITS) ? self::DECIMAL : self::BINARY;
         $i = 0;
@@ -95,7 +95,7 @@ final class Information extends Dimension
             ++$i;
         }
 
-        return (string) new self($quantity, $units[$i]);
+        return new self($quantity, $units[$i]);
     }
 
     protected static function createFrom(mixed $value): static

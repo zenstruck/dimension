@@ -107,14 +107,14 @@ $info = Information::from(4568897); // equivalent to above (can create from byte
 $info->bytes(); // 4568897
 
 // "humanize"
-$info->humanize(); // "4.57 MB" (defaults to the decimal system)
-$info->asBinary()->humanize(); // "4.36 MiB" (convert to binary system before humanizing)
+(string) $info->humanize(); // "4.57 MB" (defaults to the decimal system)
+(string) $info->asBinary()->humanize(); // "4.36 MiB" (convert to binary system before humanizing)
 
-Information::binary(4568897)->humanize(); // "4.36 MiB" (explicitly create in binary system)
+(string) Information::binary(4568897)->humanize(); // "4.36 MiB" (explicitly create in binary system)
 
 // when creating with a unit of measure, the system is detected
-Information::from('4570 kb')->humanize(); // "4.57 MB"
-Information::from('4570 KiB')->humanize(); // "4.46 MiB"
+(string) Information::from('4570 kb')->humanize(); // "4.57 MB"
+(string) Information::from('4570 KiB')->humanize(); // "4.46 MiB"
 ```
 
 ### Duration Object
