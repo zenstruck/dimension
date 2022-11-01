@@ -42,14 +42,14 @@ final class DurationTest extends TestCase
      */
     public function can_humanize($value, $expected): void
     {
-        $this->assertSame($expected, Duration::from($value)->humanize());
+        $this->assertSame($expected, (string) Duration::from($value)->humanize());
     }
 
     public static function humanizeProvider(): iterable
     {
         return [
-            [0, '< 1 sec'],
-            [0.3, '< 1 sec'],
+            [0, '0 secs'],
+            [0.3, '0 secs'],
             [1, '1 sec'],
             [2, '2 secs'],
             [59, '59 secs'],

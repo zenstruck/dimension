@@ -128,12 +128,12 @@ use Zenstruck\Dimension\Duration;
 $duration = Duration::from('8540 s');
 $duration = Duration::from(8540); // equivalent to above (can create from seconds directly)
 
-$duration->humanize(); // "2 hrs"
+(string) $duration->humanize(); // "2 hrs"
 
-Duration::from(0)->humanize(); // "< 1 sec"
-Duration::from(1)->humanize(); // "1 sec"
-Duration::from(10)->humanize(); // "10 sec"
-Duration::from(65)->humanize(); // "1 min"
+(string) Duration::from(0)->humanize(); // "0 secs"
+(string) Duration::from(1)->humanize(); // "1 sec"
+(string) Duration::from(10)->humanize(); // "10 secs"
+(string) Duration::from(65)->humanize(); // "1 min"
 ```
 
 ## Bridge

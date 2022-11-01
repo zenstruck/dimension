@@ -7,4 +7,4 @@
 return []
 --EXPECT--
 9 days
-&lt; 1 sec
+0 secs
