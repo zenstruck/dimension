@@ -39,9 +39,19 @@ return $config
             'remove_inheritdoc' => true,
         ],
         'phpdoc_to_comment' => false,
-        'function_declaration' => ['closure_function_spacing' => 'none'],
+        'function_declaration' => ['closure_function_spacing' => 'none', 'closure_fn_spacing' => 'none'],
         'nullable_type_declaration_for_default_null_value' => true,
         'phpdoc_types_order' => ['null_adjustment' => 'none', 'sort_algorithm' => 'none'],
+        'phpdoc_separation' => ['groups' => [
+            ['test', 'dataProvider', 'testWith', 'group'],
+            ['template', 'implements', 'extends'],
+            ['phpstan-type', 'phpstan-import-type'],
+            ['deprecated', 'link', 'see', 'since'],
+            ['author', 'copyright', 'license', 'source'],
+            ['category', 'package', 'subpackage'],
+            ['property', 'property-read', 'property-write'],
+            ['before', 'after'],
+        ]],
     ])
     ->setRiskyAllowed(true)
     ->setFinder($finder)
