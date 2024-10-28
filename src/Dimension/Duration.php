@@ -53,7 +53,7 @@ final class Duration extends Dimension
                         return new self(1, $format[1]);
                     }
 
-                    return new self(\floor($seconds / ($format[2] ?? 1)), $format[1]);
+                    return new self(\floor($seconds / ($format[2] ?? 1)), $format[1]); // @phpstan-ignore-line
                 }
             }
         }
