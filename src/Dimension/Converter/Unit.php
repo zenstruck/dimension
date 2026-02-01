@@ -57,8 +57,8 @@ final class Unit
     {
         return new self(
             $name,
-            fn($valueInNativeUnit) => $valueInNativeUnit / $toNativeUnitFactor,
-            fn($valueInThisUnit) => $valueInThisUnit * $toNativeUnitFactor
+            static fn($valueInNativeUnit) => $valueInNativeUnit / $toNativeUnitFactor,
+            static fn($valueInThisUnit) => $valueInThisUnit * $toNativeUnitFactor
         );
     }
 

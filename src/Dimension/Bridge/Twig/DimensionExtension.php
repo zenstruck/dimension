@@ -25,9 +25,9 @@ final class DimensionExtension extends AbstractExtension
     public function getFilters(): array
     {
         return [
-            new TwigFilter('dimension', fn(mixed $value): Dimension => Dimension::from($value)),
-            new TwigFilter('information', fn(mixed $value): Information => Information::from($value)),
-            new TwigFilter('duration', fn(mixed $value): Duration => Duration::from($value)),
+            new TwigFilter('dimension', static fn(mixed $value): Dimension => Dimension::from($value)),
+            new TwigFilter('information', static fn(mixed $value): Information => Information::from($value)),
+            new TwigFilter('duration', static fn(mixed $value): Duration => Duration::from($value)),
         ];
     }
 }
